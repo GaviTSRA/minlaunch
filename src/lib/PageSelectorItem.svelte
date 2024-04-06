@@ -24,8 +24,12 @@
     p {
         font-weight: 550;
         color: #CCCCCC;
+        border-color: #1f1f1f;
+        transition: color 0.5s ease;
+        transition: border-color 0.5s ease;
     }
     button {
+        background-color: #1f1f1f;
         background-color: #1f1f1f;
         border-style: none;
         padding: 0;
