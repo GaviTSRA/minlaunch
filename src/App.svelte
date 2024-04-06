@@ -2,7 +2,9 @@
   import ProfileSelector from "./lib/ProfileSelector.svelte";
   import { invoke } from "@tauri-apps/api/tauri"
   import { listen } from "@tauri-apps/api/event"
-  import StartPage from "./lib/StartPage.svelte";
+  import PlayPage from "./lib/PlayPage.svelte";
+    import PageSelectorItem from "./lib/PageSelectorItem.svelte";
+    import ProfilesPage from "./lib/ProfilesPage.svelte";
 
   let state = {}
   let currentProfile
@@ -58,12 +60,22 @@
     else if (s == 1) return "Running"
     else if (s == 2) return "Crashed"
   }
+  function selectPage(page) {
+    console.log("a")
+    selectedPage = page
+  }
+
+  $: selectedPage = "play";
 </script>
 
 <main class="container">
   {#await loadData()}
     <p>Loading...</p>
   {:then _}
+  <div class="pageSelector">
+    <PageSelectorItem title="Play" selected={selectedPage == "play"} on:selectPage={()=>selectPage("play")}/>
+    <PageSelectorItem title="Profiles" selected={selectedPage == "profiles"} on:selectPage={()=>selectPage("profiles")}/>
+  </div>
   <div class="page">
     {#if err_msg}
       <div class="errMsg">
@@ -71,8 +83,10 @@
         <button on:click={() => err_msg=undefined}>Ok</button>
       </div>
     {/if}
-    {#if true}
-    <StartPage/>
+    {#if selectedPage=="play"}
+    <PlayPage/>
+    {:else if selectedPage=="profiles"}
+    <ProfilesPage/>
     {/if}
   </div>
   <div class="bottomRow">
@@ -94,6 +108,17 @@
 </main>
 
 <style>
+  .pageSelector {
+    width: 100%;
+    background-color: #1f1f1f;
+    height: 3.5rem;
+    padding: 0;
+    margin: 0;
+    position: fixed;
+    display:flex;
+    align-items: left;
+    top: 0;
+  }
   .errMsg {
     border-radius: 10px;
     position:absolute;
@@ -104,11 +129,13 @@
     left: 35vw;
   }
   .container {
-    height: 100vh;
+    height: 100%;
+    overflow: hidden;
   }
   .page {
-    max-height: 100vh;
+    max-height: 90vh;
     height: 100%;
+    margin-top: 3.5rem;
   }
   .bottomRow {
     position:absolute;
