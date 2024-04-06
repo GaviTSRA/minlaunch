@@ -23,6 +23,10 @@
     .end {
         position:absolute;
         right: 1rem;
+        display: block;
+    }
+    .container:not(:hover) .end { 
+        display: none; 
     }
     .container {
         display: flex;
@@ -52,14 +56,14 @@
     .imgContainer {
         height: 28px;
         width: 28px;
-        border-width: 2px;
-        border-style: solid;
-        border-color: #2f2f2f;
-        border-radius: 5px;
+        border: none;
         padding: 0;
         box-shadow: none;
+        background-color: #00000000;
+        transform: rotate(0deg);
+        transition: transform .2s ease;
     }
     .imgContainer:hover {
-        background-color: #2f2f2f;
+        transform: rotate(10deg);
     }
 </style>
