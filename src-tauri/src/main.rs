@@ -135,6 +135,10 @@ fn load_data() -> Data {
 
 #[tauri::command]
 fn set_profile(id: i16, window: Window) {
+    set_profile_internal(id, &window);
+}
+
+fn set_profile_internal(id: i16, window: &Window) {
     let mut settings = Settings::load();
     settings.current_profile = id;
     settings.save();
@@ -161,7 +165,8 @@ fn launch_game(window: Window) {
             return
         }
 
-        let profile_path = Settings::settings_dir().join("profiles").join(PathBuf::from(settings.current_profile.to_string()));
+        let profile_id = settings.current_profile;
+        let profile_path = Settings::settings_dir().join("profiles").join(PathBuf::from(profile_id.to_string()));
         let jar_path = PathBuf::from(&profile_path).join("desktop.jar");
         let game_path = PathBuf::from(profile_path).join("game");
 
@@ -191,7 +196,7 @@ fn launch_game(window: Window) {
             .env("MINDUSTRY_DATA_DIR", game_path.into_os_string().into_string().unwrap())
             .spawn()
             .expect("Failed to launch process");
-        window.emit("start", settings.current_profile).expect("Failed to emit");
+        window.emit("start", profile_id).expect("Failed to emit");
 
         if settings.minimize_on_launch.is_none() || settings.minimize_on_launch.unwrap() {
             window.hide().unwrap();
@@ -200,10 +205,11 @@ fn launch_game(window: Window) {
         let exit_code = child.wait().expect("Failed to wait on child");
 
         window.show().unwrap();
+        set_profile_internal(profile_id, &window);
 
         window.emit("stop", ExitData {
             exit_code: exit_code.code().expect("Failed to get exit code"),
-            profile_id: settings.current_profile
+            profile_id: profile_id
         }).expect("Failed to emit");
     });
 }
