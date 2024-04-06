@@ -29,13 +29,15 @@
         background-color: #1f1f1f;
         border-style: none;
         padding: 0;
+        box-shadow: none;
+        height:3rem;
     }
     .selected {
         color: white;
         border-style: solid;
         border-width: 0;
         border-bottom-width: 2px;
-        border-color: aqua;
-        padding-bottom: 5px;
+        border-color: #AAAAFF;
+        padding-bottom: 2px;
     }
 </style>

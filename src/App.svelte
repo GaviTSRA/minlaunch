@@ -61,7 +61,6 @@
     else if (s == 2) return "Crashed"
   }
   function selectPage(page) {
-    console.log("a")
     selectedPage = page
   }
 
@@ -111,7 +110,7 @@
   .pageSelector {
     width: 100%;
     background-color: #1f1f1f;
-    height: 3.5rem;
+    height: 3rem;
     padding: 0;
     margin: 0;
     position: fixed;
@@ -135,7 +134,7 @@
   .page {
     max-height: 90vh;
     height: 100%;
-    margin-top: 3.5rem;
+    margin-top: 3rem;
   }
   .bottomRow {
     position:absolute;
