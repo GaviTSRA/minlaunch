@@ -134,6 +134,15 @@ fn load_data() -> Data {
 }
 
 #[tauri::command]
+fn open_profile_folder(id: i16) {
+    let res = open::that(Settings::settings_dir().join("profiles").join(PathBuf::from(id.to_string())));
+    match res {
+        Ok(()) => {}
+        Err(err) => println!("{}", err),
+    };
+}
+
+#[tauri::command]
 fn set_profile(id: i16, window: Window) {
     set_profile_internal(id, &window);
 }
@@ -226,7 +235,7 @@ fn main() {
     let tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile])
+        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder])
         .system_tray(tray)
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::DoubleClick { position: _, size: _, .. } => {

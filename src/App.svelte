@@ -85,7 +85,7 @@
     {#if selectedPage=="play"}
     <PlayPage/>
     {:else if selectedPage=="profiles"}
-    <ProfilesPage/>
+    <ProfilesPage profiles={profiles}/>
     {/if}
   </div>
   <div class="bottomRow">
@@ -134,7 +134,9 @@
   .page {
     max-height: 90vh;
     height: 100%;
-    margin-top: 3rem;
+    top: 3rem;
+    position:absolute;
+    width: 100%;
   }
   .bottomRow {
     position:absolute;
