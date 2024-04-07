@@ -73,97 +73,98 @@
 
 <main class="container">
     {#await loadData()}
-    <p>Loading...</p>
+        <p>Loading...</p>
     {:then _}
-    <div class="pageSelector">
-        <PageSelectorItem title="Play" selected={selectedPage == "play"} on:selectPage={()=>selectPage("play")}/>
+        <div class="pageSelector">
+            <PageSelectorItem title="Play" selected={selectedPage == "play"} on:selectPage={()=>selectPage("play")}/>
             <PageSelectorItem title="Profiles" selected={selectedPage == "profiles"} on:selectPage={()=>selectPage("profiles")}/>
-                <PageSelectorItem title="Settings" selected={selectedPage == "settings"} on:selectPage={()=>selectPage("settings")}/>
+            <PageSelectorItem title="Settings" selected={selectedPage == "settings"} on:selectPage={()=>selectPage("settings")}/>
+        </div>
+        <div class="page">
+            {#if err_msg}
+                <div class="errMsg">
+                    <p>{err_msg}</p>
+                    <button on:click={() => err_msg=undefined}>Ok</button>
                 </div>
-                <div class="page">
-                    {#if err_msg}
-                    <div class="errMsg">
-                        <p>{err_msg}</p>
-                        <button on:click={() => err_msg=undefined}>Ok</button>
-                    </div>
-                    {/if}
-                    {#if selectedPage=="play"}
-                    <PlayPage/>
-                    {:else if selectedPage=="profiles"}
-                    <ProfilesPage profiles={profiles}/>
-                    {:else if selectedPage=="settings"}
-                    <SettingsPage settings={settings}/>
-                    {/if}
+            {/if}
+
+            {#if selectedPage=="play"}
+                <PlayPage/>
+            {:else if selectedPage=="profiles"}
+                <ProfilesPage profiles={profiles}/>
+            {:else if selectedPage=="settings"}
+                <SettingsPage settings={settings}/>
+            {/if}
+        </div>
+        <div class="bottomRow">
+            <form class="row" on:submit|preventDefault={launch}>
+                <div class="selector">
+                    <ProfileSelector profiles={profiles} currentProfile={currentProfile}/>
                 </div>
-                <div class="bottomRow">
-                    <form class="row" on:submit|preventDefault={launch}>
-                        <div class="selector">
-                            <ProfileSelector profiles={profiles} currentProfile={currentProfile}/>
-                        </div>
-                        <button 
-                        class="launchButton" 
-                        type="submit" 
-                        style="--bg-color:{launchBtnColor}"
-                        disabled={disabled}
-                        >
-                        {launchBtnText}
-                    </button>
-                </form>
-            </div>
-            {/await}
-        </main>
+                <button 
+                    class="launchButton" 
+                    type="submit" 
+                    style="--bg-color:{launchBtnColor}"
+                    disabled={disabled}
+                >
+                    {launchBtnText}
+                </button>
+            </form>
+        </div>
+    {/await}
+</main>
         
-        <style>
-            .pageSelector {
-                width: 100%;
-                background-color: #1f1f1f;
-                height: 3rem;
-                padding: 0;
-                margin: 0;
-                position: fixed;
-                display:flex;
-                align-items: left;
-                top: 0;
-            }
-            .errMsg {
-                border-radius: 10px;
-                position:absolute;
-                top: 0;
-                background-color: #222222;
-                padding: .5rem;
-                width: 30vw;
-                left: 35vw;
-            }
-            .container {
-                height: 100%;
-                overflow: hidden;
-            }
-            .page {
-                max-height: 90vh;
-                height: 100%;
-                top: 3rem;
-                position:absolute;
-                width: 100%;
-            }
-            .bottomRow {
-                position:absolute;
-                width: 100%;
-                height: 4rem;
-                bottom: 0;
-                background-color: #1f1f1f;
-            }
-            .launchButton {
-                width: 15vw;
-                height: 3rem;
-                position: absolute;
-                right: 1rem;
-                bottom: .5rem;
-                background-color: var(--bg-color);
-            }
-            .selector {
-                position: absolute;
-                left: 0;
-                height: 100%;
-            }
-        </style>
+<style>
+    .pageSelector {
+        width: 100%;
+        background-color: #1f1f1f;
+        height: 3rem;
+        padding: 0;
+        margin: 0;
+        position: fixed;
+        display:flex;
+        align-items: left;
+        top: 0;
+    }
+    .errMsg {
+        border-radius: 10px;
+        position:absolute;
+        top: 0;
+        background-color: #222222;
+        padding: .5rem;
+        width: 30vw;
+        left: 35vw;
+    }
+    .container {
+        height: 100%;
+        overflow: hidden;
+    }
+    .page {
+        max-height: 90vh;
+        height: 100%;
+        top: 3rem;
+        position:absolute;
+        width: 100%;
+    }
+    .bottomRow {
+        position:absolute;
+        width: 100%;
+        height: 4rem;
+        bottom: 0;
+        background-color: #1f1f1f;
+    }
+    .launchButton {
+        width: 15vw;
+        height: 3rem;
+        position: absolute;
+        right: 1rem;
+        bottom: .5rem;
+        background-color: var(--bg-color);
+    }
+    .selector {
+        position: absolute;
+        left: 0;
+        height: 100%;
+    }
+</style>
         
