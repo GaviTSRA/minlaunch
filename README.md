@@ -4,8 +4,8 @@ A mindustry launcher writting in rust and svelte using tauri.
 It allows you to easily manage multiple installs of the game.
 Each of these instances can be a different version of the game and has its own save data,
 which prevents data corruption.
-This also allows running multiple instances of the game at the same without problems or
-having multiple save slots for the campaign.
+This also allows running multiple instances of the game at the same time or
+allows for multiple save slots of the campaign.
 
 ## Features
  - Multiple Instances
