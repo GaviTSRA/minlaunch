@@ -114,6 +114,14 @@ fn change_bool_setting(setting: &str, value: bool, window: Window) {
 }
 
 #[tauri::command]
+fn set_install_path(path: String, window: Window) {
+    let mut settings = Settings::load();
+    settings.install_path = Some(path);
+    settings.save();
+    window.emit("set_data", load_data()).expect("Failed to emit");
+}
+
+#[tauri::command]
 fn get_data() -> Data {
     return load_data();
 }
@@ -248,7 +256,7 @@ fn main() {
     let tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder, change_bool_setting])
+        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder, change_bool_setting, set_install_path])
         .system_tray(tray)
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::DoubleClick { position: _, size: _, .. } => {

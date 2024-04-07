@@ -1,5 +1,6 @@
 <script>
     import { invoke } from "@tauri-apps/api";
+    import { open } from '@tauri-apps/api/dialog';
 
     export let settings
 
@@ -9,10 +10,23 @@
     function changeSetting(setting, value) {
         invoke("change_bool_setting", {"setting": setting, "value": value})
     }
+
+    async function chooseInstallFolder() {
+        const folder = await open({
+            multiple: false,
+            directory: true,
+        });
+        invoke("set_install_path", {path: folder})
+    }
 </script>
 
 <main>
     <div class="checkboxes">
+        <div class="stringSetting">
+            <label>Install Path</label>
+            <button on:click={chooseInstallFolder}>Set</button>
+            <p class="stringSettingValue">{settings.install_path}</p>
+        </div>
         <div>
             <input type="checkbox" bind:checked={minimize_on_launch} on:change={()=>changeSetting("minimize_on_launch", minimize_on_launch)} />
             <label>Minimize on launch</label>
@@ -25,6 +39,21 @@
 </main>
 
 <style>
+    .stringSetting > button {
+        padding: .25rem .5rem;
+        margin-left: 1rem;
+    }
+    .stringSetting > label {
+        font-weight: 550;
+    }
+    .stringSetting {
+        display:flex;
+        align-items: center;
+    }
+    .stringSettingValue {
+        margin-left: 1rem;
+        text-decoration: underline;
+    }
     .checkboxes {
         display: flex;
         align-items: start;

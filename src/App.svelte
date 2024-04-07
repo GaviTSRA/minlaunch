@@ -51,6 +51,7 @@
     profiles.forEach(profile => {
       if (!state[profile.id]) state[profile.id] = 0
     });
+    settings = event.payload.settings
   })
 
   function getColor(s) {
