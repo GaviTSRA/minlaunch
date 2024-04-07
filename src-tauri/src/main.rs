@@ -131,7 +131,6 @@ fn create_profile(window: Window) {
         if path.is_dir() {
             let path_string = path.file_name().unwrap().to_os_string().into_string().expect("Failed to convert path");
             let path_num: i16;
-            println!("{}", path_string);
             match path_string.parse() {
                 Ok(res) => path_num = res,
                 Err(e) => continue
@@ -147,7 +146,6 @@ fn create_profile(window: Window) {
         name: "New Profile".into()
     };
 
-    println!("{}", highest_profile_id);
     let profile_path = profiles_path.join(PathBuf::from(profile.id.to_string()));
     fs::create_dir(&profile_path);
     profile.save();
@@ -303,8 +301,9 @@ struct ExitData {
 }
 
 fn main() {
+    let launch = CustomMenuItem::new("launch".to_string(), "Launch");
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
-    let tray_menu = SystemTrayMenu::new().add_item(quit);
+    let tray_menu = SystemTrayMenu::new().add_item(launch).add_item(quit);
     let tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
@@ -317,6 +316,9 @@ fn main() {
             }
             SystemTrayEvent::MenuItemClick { id, .. } => {
               match id.as_str() {
+                "launch" => {
+                    launch_game(app.get_window("main").unwrap());
+                }
                 "quit" => {
                   std::process::exit(0);
                 }
