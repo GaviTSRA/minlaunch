@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{fs, path::PathBuf, thread};
+use std::{fs, path::{Path, PathBuf}, thread};
 
 use serde::{Deserialize, Serialize};
 use tauri::{Window, CustomMenuItem, SystemTrayMenu, SystemTray, SystemTrayEvent, Manager};
@@ -92,6 +92,18 @@ impl Profile {
             Err(err) => Err(ProfileLoadError::InvalidDataFile)
         }
     }
+
+    fn save(&self) {
+        let profile_path = Settings::settings_dir().join("profiles").join(PathBuf::from(self.id.to_string()));
+        let profiles_data_path = profile_path.join("profile.toml");
+        let data = toml::to_string(&self).unwrap();
+        match std::fs::write(profiles_data_path, data) {
+            Ok(()) => {}
+            Err(err) => {
+                panic!("Failed to save profile: {}", err)
+            }
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -100,6 +112,46 @@ struct Data {
     profiles: Vec<Profile>,
     install_path: Option<String>,
     settings: Settings
+}
+
+#[tauri::command]
+fn create_profile(window: Window) {
+    let profiles_path = Settings::settings_dir().join("profiles");
+    let mut highest_profile_id = -1;
+    
+    if !profiles_path.exists() {
+        match fs::create_dir(&profiles_path) {
+            Ok(()) => {}
+            Err(err) => panic!("Failed to create profiles dir: {}", err)
+        }
+    }
+
+    for entry in fs::read_dir(profiles_path.clone()).expect("Failed to iter profiles") {
+        let path = entry.expect("").path();
+        if path.is_dir() {
+            let path_string = path.file_name().unwrap().to_os_string().into_string().expect("Failed to convert path");
+            let path_num: i16;
+            println!("{}", path_string);
+            match path_string.parse() {
+                Ok(res) => path_num = res,
+                Err(e) => continue
+            }
+            if path_num > highest_profile_id {
+                highest_profile_id = path_num;
+            }
+        }
+    }
+
+    let profile = Profile {
+        id: highest_profile_id + 1,
+        name: "New Profile".into()
+    };
+
+    println!("{}", highest_profile_id);
+    let profile_path = profiles_path.join(PathBuf::from(profile.id.to_string()));
+    fs::create_dir(&profile_path);
+    profile.save();
+    window.emit("set_data", load_data()).expect("Failed to emit");
 }
 
 #[tauri::command]
@@ -256,7 +308,7 @@ fn main() {
     let tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder, change_bool_setting, set_install_path])
+        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder, change_bool_setting, set_install_path, create_profile])
         .system_tray(tray)
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::DoubleClick { position: _, size: _, .. } => {
