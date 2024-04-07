@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "minlaunch",
+    "productName": "Minlaunch",
     "version": "0.0.0"
   },
   "tauri": {
@@ -23,9 +23,11 @@
     },
     "windows": [
       {
-        "title": "Mindustry Launcher",
+        "title": "Minlaunch",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "maximizable": false,
+        "resizable": false
       }
     ],
     "security": {
