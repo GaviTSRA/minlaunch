@@ -5,11 +5,13 @@
   import PlayPage from "./lib/PlayPage.svelte";
     import PageSelectorItem from "./lib/PageSelectorItem.svelte";
     import ProfilesPage from "./lib/ProfilesPage.svelte";
+    import SettingsPage from "./lib/SettingsPage.svelte";
 
   let state = {}
   let currentProfile
   let profiles = []
   let err_msg
+  let settings = {}
 
   $: launchBtnText = getText(state[currentProfile])
   $: launchBtnColor = getColor(state[currentProfile])
@@ -26,6 +28,7 @@
     profiles.forEach(profile => {
       if (!state[profile.id]) state[profile.id] = 0
     });
+    settings = data.settings
   }
   
   listen("start", event => {
@@ -74,6 +77,7 @@
   <div class="pageSelector">
     <PageSelectorItem title="Play" selected={selectedPage == "play"} on:selectPage={()=>selectPage("play")}/>
     <PageSelectorItem title="Profiles" selected={selectedPage == "profiles"} on:selectPage={()=>selectPage("profiles")}/>
+    <PageSelectorItem title="Settings" selected={selectedPage == "settings"} on:selectPage={()=>selectPage("settings")}/>
   </div>
   <div class="page">
     {#if err_msg}
@@ -86,6 +90,8 @@
     <PlayPage/>
     {:else if selectedPage=="profiles"}
     <ProfilesPage profiles={profiles}/>
+    {:else if selectedPage=="settings"}
+    <SettingsPage settings={settings}/>
     {/if}
   </div>
   <div class="bottomRow">

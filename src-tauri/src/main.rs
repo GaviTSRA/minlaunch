@@ -98,7 +98,19 @@ impl Profile {
 struct Data {
     current_profile: i16,
     profiles: Vec<Profile>,
-    install_path: Option<String>
+    install_path: Option<String>,
+    settings: Settings
+}
+
+#[tauri::command]
+fn change_bool_setting(setting: &str, value: bool, window: Window) {
+    let mut settings = Settings::load();
+    match setting {
+        "minimize_on_launch" => settings.minimize_on_launch = Some(value),
+        "minimize_on_close" => settings.minimize_on_close = Some(value),
+        _ => window.emit("err", "bool setting not found").expect("failed to emit")
+    };
+    settings.save();
 }
 
 #[tauri::command]
@@ -129,7 +141,8 @@ fn load_data() -> Data {
     Data {
         current_profile: state.current_profile,
         profiles,
-        install_path: state.install_path.clone()
+        install_path: state.install_path.clone(),
+        settings: state
     }
 }
 
@@ -235,7 +248,7 @@ fn main() {
     let tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder])
+        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder, change_bool_setting])
         .system_tray(tray)
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::DoubleClick { position: _, size: _, .. } => {
