@@ -15,7 +15,7 @@
     
     $: launchBtnText = getText(state[currentProfile])
     $: launchBtnColor = getColor(state[currentProfile])
-    $: disabled = state[currentProfile] == 1
+    $: disabled = state[currentProfile] == 1 || state[currentProfile] == undefined
     
     async function launch() {
         await invoke("launch_game")
@@ -33,14 +33,12 @@
     
     listen("start", event => {
         state[event.payload] = 1
-        console.log(state)
     })
     listen("stop", event => {
         state[event.payload.profile_id] = 0
         if(event.payload.exit_code != 0) {
             state[event.payload.profile_id] = 2
         }
-        console.log(state)
     })
     listen("launch_err", event => {
         err_msg = event.payload
@@ -55,11 +53,13 @@
     })
     
     function getColor(s) {
+        if (s == undefined) return "red"
         if (s == 0) return "green"
         else if (s == 1) return "gray"
         else if (s == 2) return "red"
     }
     function getText(s) {
+        if (s == undefined) return "No Profile"
         if (s == 0) return "Launch"
         else if (s == 1) return "Running"
         else if (s == 2) return "Crashed"

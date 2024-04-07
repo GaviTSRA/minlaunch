@@ -5,14 +5,10 @@
     export let currentProfile;
 
     let visible = false;
-    $: currentProfileData = profiles.filter(profile => profile.id == currentProfile)[0]
-    
-    if (!currentProfileData) {
-        currentProfileData = {
+    $: currentProfileData = profiles.filter(profile => profile.id == currentProfile)[0] == undefined ? {
             "name": "No profile selected",
             "id": -1
-        }
-    }
+        } : profiles.filter(profile => profile.id == currentProfile)[0]
 
     async function setProfile(id) {
         await invoke("set_profile", {id: id})
