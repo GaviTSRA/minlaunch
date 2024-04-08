@@ -1600,7 +1600,7 @@ dependencies = [
 
 [[package]]
 name = "minlaunch"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "dirs",
  "open 5.1.2",
