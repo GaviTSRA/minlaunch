@@ -80,7 +80,7 @@ enum ProfileLoadError {
 }
 
 impl Profile {
-    fn load(profile_folder: PathBuf) -> Result<Self, ProfileLoadError> {
+    fn load_folder(profile_folder: PathBuf) -> Result<Self, ProfileLoadError> {
         let profiles_data_path = profile_folder.join("profile.toml");
         if !profiles_data_path.exists() { 
             return Err(ProfileLoadError::NoDataFile)
@@ -91,6 +91,11 @@ impl Profile {
             Ok(res) => Ok(res),
             Err(err) => Err(ProfileLoadError::InvalidDataFile)
         }
+    }
+
+    fn load_id(id: i16) -> Result<Self, ProfileLoadError> {
+        let profile_folder = Settings::settings_dir().join("profiles").join(id.to_string());
+        Profile::load_folder(profile_folder)
     }
 
     fn save(&self) {
@@ -191,7 +196,7 @@ fn load_data() -> Data {
     for entry in fs::read_dir(profiles_path).expect("Failed to iter profiles") {
         let path = entry.expect("").path();
         if path.is_dir() {
-            let res = Profile::load(path).expect("Failed to load profile");
+            let res = Profile::load_folder(path).expect("Failed to load profile");
             profiles.push(res);
         }
     }
@@ -214,6 +219,15 @@ fn open_profile_folder(id: i16) {
 }
 
 #[tauri::command]
+fn update_profile(id: i16, name: Option<String>) {
+    let mut profile = Profile::load_id(id).expect("failed to load profile");
+    if name.is_some() {
+        profile.name = name.unwrap();
+    }
+    profile.save();
+}
+
+#[tauri::command]
 fn set_profile(id: i16, window: Window) {
     set_profile_internal(id, &window);
 }
@@ -233,7 +247,6 @@ fn launch_game(window: Window) {
         let path;
         if settings.install_path.is_some() {
             path = settings.install_path.clone().unwrap();
-            println!("{}", path);
         } else {
             window.emit("launch_err", "Install path not defined").expect("Failed to emit");
             return
@@ -267,15 +280,23 @@ fn launch_game(window: Window) {
               \"-XX:+ShowCodeDetailsInExceptionMessages\"
             ]
           }}", 
-          jar_path.to_string_lossy()).replace("\\", "\\\\"
-        );
+          jar_path.to_string_lossy()
+        ).replace("\\", "\\\\");
         fs::write(config_file, data);
 
-        let exe_path = PathBuf::from(path).join("Mindustry.exe");
-        let mut child = std::process::Command::new(exe_path)
+        let mut exe_path = PathBuf::from(path.clone()).join("Mindustry.exe");
+        if !exe_path.exists() {
+            exe_path = PathBuf::from(path).join("Mindustry");
+        }
+        let mut child = match std::process::Command::new(exe_path)
             .env("MINDUSTRY_DATA_DIR", game_path.into_os_string().into_string().unwrap())
-            .spawn()
-            .expect("Failed to launch process");
+            .spawn() {
+                Ok(child) => child,
+                Err(err) => {
+                    window.emit("err", "Failed to launch process").expect("Failed to emit");
+                    return;
+                }
+            };
         window.emit("start", profile_id).expect("Failed to emit");
 
         if settings.minimize_on_launch.is_none() || settings.minimize_on_launch.unwrap() {
@@ -307,7 +328,7 @@ fn main() {
     let tray = SystemTray::new().with_menu(tray_menu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder, change_bool_setting, set_install_path, create_profile])
+        .invoke_handler(tauri::generate_handler![get_data, launch_game, set_profile, open_profile_folder, change_bool_setting, set_install_path, create_profile, update_profile])
         .system_tray(tray)
         .on_system_tray_event(|app, event| match event {
             SystemTrayEvent::DoubleClick { position: _, size: _, .. } => {
