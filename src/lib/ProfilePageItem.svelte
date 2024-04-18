@@ -20,7 +20,7 @@
 <main>
     <div class="container">
         {#if editing}
-        <input autofocus on:blur={saveName} bind:this={nameInput} type="text" class="edit" bind:value={profile.name}/>
+        <input autofocus on:blur={saveName} bind:this={nameInput} type="text" class="editing" bind:value={profile.name}/>
         {:else}
         <p class="name">{profile.name} <span class="id">({profile.id})</span></p>
         {/if}
@@ -60,7 +60,7 @@
         border-style: solid;
         height: 3rem;
     }
-    .container:hover {
+    .container:hover, .container:hover > .editing {
         background-color: #3f3f3f;
     }
     .name {
@@ -68,13 +68,15 @@
         font-weight: 550;
     }
     .editing {
-        background-color: #222222;
+        background-color: #2f2f2f;
         border: none;
         padding: 0;
         height: 50%;
         padding: .5rem;
         width: 12rem;
         margin-left: 1rem;
+        font-weight: 550;
+        box-shadow: none;
     }
     .id {
         font-weight: 400;
