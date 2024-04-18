@@ -7,6 +7,12 @@ use crate::{load_data, settings::Settings};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Profile {
+    settings: ProfileSettings,
+    has_jar: bool
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct ProfileSettings {
     id: i16,
     name: String
 }
@@ -25,10 +31,14 @@ impl Profile {
         }
         let data = std::fs::read_to_string(profiles_data_path).expect("Failed to read profile file");
 
-        match toml::from_str(&data) {
-            Ok(res) => Ok(res),
-            Err(err) => Err(ProfileLoadError::InvalidDataFile)
-        }
+        let settings: ProfileSettings = match toml::from_str(&data) {
+            Ok(res) => res,
+            Err(err) => return Err(ProfileLoadError::InvalidDataFile)
+        };
+        return Ok(Profile {
+            settings,
+            has_jar: profile_folder.join("desktop.jar").exists()
+        })
     }
 
     pub fn load_id(id: i16) -> Result<Self, ProfileLoadError> {
@@ -37,9 +47,9 @@ impl Profile {
     }
 
     pub fn save(&self) {
-        let profile_path = Settings::settings_dir().join("profiles").join(PathBuf::from(self.id.to_string()));
+        let profile_path = Settings::settings_dir().join("profiles").join(PathBuf::from(self.settings.id.to_string()));
         let profiles_data_path = profile_path.join("profile.toml");
-        let data = toml::to_string(&self).unwrap();
+        let data = toml::to_string(&self.settings).unwrap();
         match std::fs::write(profiles_data_path, data) {
             Ok(()) => {}
             Err(err) => {
@@ -77,11 +87,14 @@ pub fn create_profile(window: Window) {
     }
 
     let profile = Profile {
-        id: highest_profile_id + 1,
-        name: "New Profile".into()
+        settings: ProfileSettings {
+            id: highest_profile_id + 1,
+            name: "New Profile".into()
+        },
+        has_jar: false
     };
 
-    let profile_path = profiles_path.join(PathBuf::from(profile.id.to_string()));
+    let profile_path = profiles_path.join(PathBuf::from(profile.settings.id.to_string()));
     fs::create_dir(&profile_path);
     profile.save();
     window.emit("set_data", load_data()).expect("Failed to emit");
@@ -100,7 +113,7 @@ pub fn open_profile_folder(id: i16) {
 pub fn update_profile(id: i16, name: Option<String>) {
     let mut profile = Profile::load_id(id).expect("failed to load profile");
     if name.is_some() {
-        profile.name = name.unwrap();
+        profile.settings.name = name.unwrap();
     }
     profile.save();
 }

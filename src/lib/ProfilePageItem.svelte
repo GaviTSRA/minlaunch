@@ -3,16 +3,15 @@
 
     export let profile;
     let editing = false;
-    let nameInput
 
     function openFolder() {
-        invoke("open_profile_folder", {id: profile.id})
+        invoke("open_profile_folder", {id: profile.settings.id})
     }
     function editName() {
         editing = true;
     }
     function saveName() {
-        invoke("update_profile", {id: profile.id, name: profile.name})
+        invoke("update_profile", {id: profile.settings.id, name: profile.settings.name})
         editing = false
     }
 </script>
@@ -20,9 +19,9 @@
 <main>
     <div class="container">
         {#if editing}
-        <input autofocus on:blur={saveName} bind:this={nameInput} type="text" class="editing" bind:value={profile.name}/>
+        <input autofocus on:blur={saveName} type="text" class="editing" bind:value={profile.settings.name}/>
         {:else}
-        <p class="name">{profile.name} <span class="id">({profile.id})</span></p>
+        <p class="name">{profile.settings.name} <span class="id">({profile.settings.id})</span></p>
         {/if}
         <button class="imgContainer hide" on:click={editName}>
             <img class="editName" src="edit-2.svg" alt="edit name">
@@ -33,9 +32,26 @@
             </button>
         </div>
     </div>
+    {#if !profile.has_jar}
+        <div class="alertRow">
+            <img src="alert-triangle.svg"/>
+            <p>This profile is missing a desktop.jar!</p>
+        </div>
+    {/if}
 </main>
 
 <style>
+    .alertRow {
+        display: flex;
+        align-items: top;
+        margin-left: 1.5rem;
+        margin-top: 0;
+        justify-content: left;
+    }
+    .alertRow > img {
+        margin-right: .5rem;
+        filter: invert(55%) sepia(92%) saturate(3383%) hue-rotate(327deg) brightness(107%) contrast(124%);
+    }
     .editName {
         margin-left: 1rem;
         filter: invert(1);
@@ -46,21 +62,24 @@
         right: 1rem;
         display: block;
     }
-    .container:not(:hover) .hide { 
+    main:not(:hover) .hide { 
         display: none; 
+    }
+    main {
+        border-width: 0;
+        border-bottom-width: 1px;
+        border-color: #1f1f1f;
+        border-style: solid;
     }
     .container {
         display: flex;
         flex-direction: row;
         align-items:center;
         justify-content: start;
-        border-width: 0;
-        border-bottom-width: 1px;
-        border-color: #1f1f1f;
-        border-style: solid;
-        height: 3rem;
+        height: 2rem;
+        padding: .25rem 0;
     }
-    .container:hover, .container:hover > .editing {
+    main:hover, main:hover > .container > .editing {
         background-color: #3f3f3f;
     }
     .name {

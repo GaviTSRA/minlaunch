@@ -26,7 +26,7 @@
         currentProfile = data.current_profile
         profiles = data.profiles
         profiles.forEach(profile => {
-            if (!state[profile.id]) state[profile.id] = 0
+            if (!state[profile.settings.id]) state[profile.settings.id] = 0
         });
         settings = data.settings
     }
@@ -47,7 +47,7 @@
         currentProfile = event.payload.current_profile;
         profiles = event.payload.profiles;
         profiles.forEach(profile => {
-            if (!state[profile.id]) state[profile.id] = 0
+            if (!state[profile.settings.id]) state[profile.settings.id] = 0
         });
         settings = event.payload.settings
     })

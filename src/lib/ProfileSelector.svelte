@@ -5,10 +5,13 @@
     export let currentProfile;
 
     let visible = false;
-    $: currentProfileData = profiles.filter(profile => profile.id == currentProfile)[0] == undefined ? {
-            "name": "No profile selected",
-            "id": -1
-        } : profiles.filter(profile => profile.id == currentProfile)[0]
+    $: currentProfileData = profiles.filter(profile => profile.settings.id == currentProfile)[0] == undefined ? {
+        settings: {
+            name: "No profile selected",
+            id: -1
+        },
+        has_jar: false
+    } : profiles.filter(profile => profile.settings.id == currentProfile)[0]
 
     async function setProfile(id) {
         await invoke("set_profile", {id: id})
@@ -18,17 +21,17 @@
 
 <main>
     <div class={visible ? "selector" : "hide"}>
-        {#each profiles as profile (profile.id)}
-            {#if profile.id != currentProfileData.id}
-            <button class="selectorItem" on:click|preventDefault={async () => {await setProfile(profile.id)}}>
-                {profile.name}
+        {#each profiles as profile (profile.settings.id)}
+            {#if profile.settings.id != currentProfileData.settings.id}
+            <button class="selectorItem" on:click|preventDefault={async () => {await setProfile(profile.settings.id)}}>
+                {profile.settings.name}
             </button>
             {/if}
         {/each}
     </div>
     <button class="current" style="--radius:{visible ? '0px' : '10px'}" on:click|preventDefault={() => visible=!visible}>
         <div class="currentProfile">
-            {currentProfileData.name}
+            {currentProfileData.settings.name}
         </div>
         <img src="chevron-down.svg" alt="arrow down" class={visible ? "rotate" : ""}>
     </button>
