@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import ProfileSelector from "./lib/ProfileSelector.svelte";
     import { invoke } from "@tauri-apps/api/tauri"
     import { listen } from "@tauri-apps/api/event"
@@ -6,12 +6,13 @@
     import PageSelectorItem from "./lib/PageSelectorItem.svelte";
     import ProfilesPage from "./lib/ProfilesPage.svelte";
     import SettingsPage from "./lib/SettingsPage.svelte";
+    import type { Data, ExitData, Profile, Settings } from "./types";
     
-    let state = {}
-    let currentProfile
-    let profiles = []
-    let err_msg
-    let settings = {}
+    let state: { [profile_id: number] : number} = {}
+    let currentProfile: number
+    let profiles: Array<Profile> = []
+    let err_msg: string | null
+    let settings: Settings
     
     $: launchBtnText = getText(state[currentProfile])
     $: launchBtnColor = getColor(state[currentProfile])
@@ -22,8 +23,8 @@
     }
     
     async function loadData() {
-        let data = await invoke("get_data")
-        currentProfile = data.current_profile
+        let data: Data = await invoke("get_data")
+        currentProfile = data.settings.current_profile
         profiles = data.profiles
         profiles.forEach(profile => {
             if (!state[profile.settings.id]) state[profile.settings.id] = 0
@@ -31,20 +32,20 @@
         settings = data.settings
     }
     
-    listen("start", event => {
+    listen<number>("start", event => {
         state[event.payload] = 1
     })
-    listen("stop", event => {
+    listen<ExitData>("stop", event => {
         state[event.payload.profile_id] = 0
         if(event.payload.exit_code != 0) {
             state[event.payload.profile_id] = 2
         }
     })
-    listen("launch_err", event => {
+    listen<string>("launch_err", event => {
         err_msg = event.payload
     })
-    listen("set_data", event => {
-        currentProfile = event.payload.current_profile;
+    listen<Data>("set_data", event => {
+        currentProfile = event.payload.settings.current_profile;
         profiles = event.payload.profiles;
         profiles.forEach(profile => {
             if (!state[profile.settings.id]) state[profile.settings.id] = 0
@@ -52,19 +53,19 @@
         settings = event.payload.settings
     })
     
-    function getColor(s) {
-        if (s == undefined) return "red"
-        if (s == 0) return "green"
-        else if (s == 1) return "gray"
-        else if (s == 2) return "red"
+    function getColor(profileState: number) {
+        if (profileState == undefined) return "red"
+        if (profileState == 0) return "green"
+        else if (profileState == 1) return "gray"
+        else if (profileState == 2) return "red"
     }
-    function getText(s) {
-        if (s == undefined) return "No Profile"
-        if (s == 0) return "Launch"
-        else if (s == 1) return "Running"
-        else if (s == 2) return "Crashed"
+    function getText(profileState: number) {
+        if (profileState == undefined) return "No Profile"
+        if (profileState == 0) return "Launch"
+        else if (profileState == 1) return "Running"
+        else if (profileState == 2) return "Crashed"
     }
-    function selectPage(page) {
+    function selectPage(page: string) {
         selectedPage = page
     }
     
@@ -84,7 +85,7 @@
             {#if err_msg}
                 <div class="errMsg">
                     <p>{err_msg}</p>
-                    <button on:click={() => err_msg=undefined}>Ok</button>
+                    <button on:click={() => err_msg=null}>Ok</button>
                 </div>
             {/if}
 

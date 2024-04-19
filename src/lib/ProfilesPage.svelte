@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
     import { invoke } from "@tauri-apps/api";
     import ProfilePageItem from "./ProfilePageItem.svelte";
+    import type { Profile } from "../types";
 
-    export let profiles;
+    export let profiles: Array<Profile>;
 
     function newProfile() {
         invoke("create_profile")

@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
     import { createEventDispatcher } from 'svelte';
     
-    export let title;
-    export let selected;
+    export let title: String;
+    export let selected: boolean;
 
     const dispatch = createEventDispatcher();
     

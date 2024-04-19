@@ -1,13 +1,14 @@
-<script>
+<script lang="ts">
     import { invoke } from "@tauri-apps/api";
     import { open } from '@tauri-apps/api/dialog';
+    import type { Settings } from "../types";
 
-    export let settings
+    export let settings: Settings
 
     let minimize_on_launch = settings.minimize_on_launch
     let minimize_on_close = settings.minimize_on_close
     
-    function changeSetting(setting, value) {
+    function changeSetting(setting: String, value: boolean) {
         invoke("change_bool_setting", {"setting": setting, "value": value})
     }
 

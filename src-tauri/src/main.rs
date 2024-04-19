@@ -16,9 +16,7 @@ mod profile;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Data {
-    current_profile: i16,
     profiles: Vec<Profile>,
-    install_path: Option<String>,
     settings: Settings
 }
 
@@ -48,9 +46,7 @@ fn load_data() -> Data {
     }
 
     Data {
-        current_profile: state.current_profile,
         profiles,
-        install_path: state.install_path.clone(),
         settings: state
     }
 }

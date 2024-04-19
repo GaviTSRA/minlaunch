@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri"
+    import type { Profile } from "../types";
 
-    export let profiles;
-    export let currentProfile;
+    export let profiles: Array<Profile>;
+    export let currentProfile: number;
 
     let visible = false;
     $: currentProfileData = profiles.filter(profile => profile.settings.id == currentProfile)[0] == undefined ? {
@@ -13,7 +14,7 @@
         has_jar: false
     } : profiles.filter(profile => profile.settings.id == currentProfile)[0]
 
-    async function setProfile(id) {
+    async function setProfile(id: number) {
         await invoke("set_profile", {id: id})
         visible = false;
     }

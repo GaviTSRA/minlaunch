@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
     import { invoke } from "@tauri-apps/api";
+    import type { Profile } from "../types";
 
-    export let profile;
+    export let profile: Profile;
     let editing = false;
 
     function openFolder() {
@@ -34,7 +35,7 @@
     </div>
     {#if !profile.has_jar}
         <div class="alertRow">
-            <img src="alert-triangle.svg"/>
+            <img src="alert-triangle.svg" alt="Alert"/>
             <p>This profile is missing a desktop.jar!</p>
         </div>
     {/if}
