@@ -46,6 +46,10 @@ impl Profile {
         Profile::load_folder(profile_folder)
     }
 
+    pub fn get_folder(&self) -> PathBuf {
+        Settings::settings_dir().join("profiles").join(self.settings.id.to_string())
+    }
+
     pub fn save(&self) {
         let profile_path = Settings::settings_dir().join("profiles").join(PathBuf::from(self.settings.id.to_string()));
         let profiles_data_path = profile_path.join("profile.toml");

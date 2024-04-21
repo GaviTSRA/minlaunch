@@ -92,7 +92,7 @@
             {#if selectedPage=="play"}
                 <PlayPage/>
             {:else if selectedPage=="profiles"}
-                <ProfilesPage profiles={profiles}/>
+                <ProfilesPage sources={settings.download_sources} profiles={profiles}/>
             {:else if selectedPage=="settings"}
                 <SettingsPage settings={settings}/>
             {/if}

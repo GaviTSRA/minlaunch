@@ -14,3 +14,10 @@ allows for multiple save slots of the campaign.
  - Multiple Instance running at the same time
  - Minimize to tray after launching
  - Open launcher on game close or crash
+ - Install game versions directly in the launcher
+
+### Planned features
+ - [ ] Add install sources
+ - [ ] Remove install sources
+ - [ ] Delete install versions
+ - [ ] Delete profiles

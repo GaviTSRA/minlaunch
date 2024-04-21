@@ -4,6 +4,7 @@
     import type { Profile } from "../types";
 
     export let profiles: Array<Profile>;
+    export let sources: Array<string>;
 
     function newProfile() {
         invoke("create_profile")
@@ -12,7 +13,7 @@
 
 <main>
     {#each profiles as profile}
-        <ProfilePageItem profile={profile}/>
+        <ProfilePageItem sources={sources} profile={profile}/>
     {/each}
     <button class="new" on:click={newProfile}>New Profile</button>
 </main>

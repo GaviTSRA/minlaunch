@@ -1,9 +1,13 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api";
     import type { Profile } from "../types";
+    import DownloadPopup from "./DownloadPopup.svelte";
 
     export let profile: Profile;
+    export let sources: Array<string>;
+
     let editing = false;
+    let download = false;
 
     function openFolder() {
         invoke("open_profile_folder", {id: profile.settings.id})
@@ -18,33 +22,55 @@
 </script>
 
 <main>
-    <div class="container">
-        {#if editing}
-        <input autofocus on:blur={saveName} type="text" class="editing" bind:value={profile.settings.name}/>
-        {:else}
-        <p class="name">{profile.settings.name} <span class="id">({profile.settings.id})</span></p>
-        {/if}
-        <button class="imgContainer hide" on:click={editName}>
-            <img class="editName" src="edit-2.svg" alt="edit name">
-        </button>
-        <div class="end hide">
-            <button class="imgContainer" on:click={openFolder}>
-                <img class="openFolder" src="folder.svg" alt="folder">
+    <div class="main">
+        <div class="container">
+            {#if editing}
+            <input autofocus on:blur={saveName} type="text" class="editing" bind:value={profile.settings.name}/>
+            {:else}
+            <p class="name">{profile.settings.name} <span class="id">({profile.settings.id})</span></p>
+            {/if}
+            <button class="imgContainer hide" on:click={editName}>
+                <img class="editName" src="edit-2.svg" alt="edit name">
             </button>
+            <div class="end hide">
+                <button class="imgContainer" on:click={openFolder}>
+                    <img class="openFolder" src="folder.svg" alt="folder">
+                </button>
+            </div>
         </div>
+        {#if !profile.has_jar}
+            <div class="alertRow">
+                <img src="alert-triangle.svg" alt="Alert"/>
+                <p>This profile is missing a desktop.jar!</p>
+                <button class="downloadButton" on:click={()=>download=true}>
+                    <img src="download.svg" alt="download"/>
+                </button>
+            </div>
+        {/if}
     </div>
-    {#if !profile.has_jar}
-        <div class="alertRow">
-            <img src="alert-triangle.svg" alt="Alert"/>
-            <p>This profile is missing a desktop.jar!</p>
-        </div>
+    {#if download} 
+        <DownloadPopup sources={sources} profile={profile} on:close={()=>download=false}/>
     {/if}
 </main>
 
 <style>
+    .downloadButton {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        height: 2.5rem;
+        margin-left: 1rem;
+        background-color: darkgreen;
+    }
+    .downloadButton:hover {
+        background-color: green;
+    }
+    .downloadButton > img {
+        filter: invert(1);
+    }
     .alertRow {
         display: flex;
-        align-items: top;
+        align-items: center;
         margin-left: 1.5rem;
         margin-top: 0;
         justify-content: left;
@@ -63,10 +89,10 @@
         right: 1rem;
         display: block;
     }
-    main:not(:hover) .hide { 
+    .main:not(:hover) .hide { 
         display: none; 
     }
-    main {
+    .main {
         border-width: 0;
         border-bottom-width: 1px;
         border-color: #1f1f1f;
@@ -80,7 +106,7 @@
         height: 2rem;
         padding: .25rem 0;
     }
-    main:hover, main:hover > .container > .editing {
+    .main:hover, .main:hover > .container > .editing {
         background-color: #3f3f3f;
     }
     .name {
