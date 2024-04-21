@@ -2,7 +2,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::fs::File;
-use std::io::Write;
+use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
+use std::thread::sleep;
+use std::time::Duration;
 use std::{fs, path::PathBuf, thread};
 
 use profile::set_profile_internal;
@@ -289,6 +292,17 @@ async fn install_version_jar(profile_id: i16, url: String, size: i32, window: Wi
 }
 
 fn main() {
+    const SOCKET_ADDR: &str = "127.0.0.1:8776";
+    match TcpStream::connect(SOCKET_ADDR) {
+        Ok(mut stream) => {
+            // Connection succeeded, another instance is already running
+            stream.write_all("open".as_bytes()).expect("Failed to send message to other instance");
+            stream.flush().expect("Failed to flush");
+            std::process::exit(0);
+        }
+        Err(_) => {}
+    }
+
     let launch = CustomMenuItem::new("launch".to_string(), "Launch");
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let tray_menu = SystemTrayMenu::new().add_item(launch).add_item(quit);
@@ -322,9 +336,26 @@ fn main() {
                     event.window().hide().unwrap();
                     api.prevent_close();
                 }
-            }
+            },
             _ => {}
         })
+        .setup(|app| Ok({
+            // Connection failed, no instance is running, so start the application
+            let listener = TcpListener::bind(SOCKET_ADDR).expect("Failed to bind socket");
+            let window = app.get_window("main").expect("Failed to get window");
+            std::thread::spawn(move || {
+                for stream in listener.incoming() {
+                    match stream {
+                        Ok(mut stream) => {
+                            window.show().expect("Failed to show window");
+                        }
+                        Err(e) => {
+                            eprintln!("Error accepting connection: {}", e);
+                        }
+                    }
+                }
+            });
+        }))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
